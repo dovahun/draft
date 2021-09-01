@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-not
+spec:
+  hard:
+    limits.cpu: 14900m
+    limits.memory: 16160Mi
+    requests.cpu: 3040m
+    requests.memory: 16160Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-not
+spec:
+  hard:
+    limits.cpu: 14900m
+    limits.memory: 16160Mi
+    requests.cpu: 3040m
+    requests.memory: 16160Mi
+
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-not
+spec:
+  hard:
+    limits.cpu: 14900m
+    limits.memory: 16160Mi
+    requests.cpu: 3040m
+    requests.memory: 16160Mi
+

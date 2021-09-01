@@ -1,0 +1,42 @@
+resources:
+  - name: source-code
+    type: git
+    source:
+      uri: https://bitbucket.vtb.cloud/scm/~pkopylov/concourse.git
+      branch: master
+      username: pkopylov
+      password: ((hello-password))
+
+jobs:
+- name: "Build first concourse"
+  plan:
+    - get: source-code
+      trigger: true
+
+    - task: "Build gradle project"
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: "bash"
+            tag: "latest"
+        inputs:
+          - name: source-code
+        run:
+          dir: source-code
+          path: bash
+          args:
+          - -ec
+          - |
+            ls -la ../
+            pwd
+            ls -la
+            cat helloworld
+
+
+
+
+
+
+

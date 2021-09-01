@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-dccs-obesrabuo
+spec:
+  hard:
+    requests.cpu: 1185m
+    requests.memory: 3764Mi
+    limits.cpu: 3720m
+    limits.memory: 4664Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-dccs-obesrabuo
+spec:
+  hard:
+    requests.cpu: 1135m
+    requests.memory: 3664Mi
+    limits.cpu: 3670m
+    limits.memory: 3664Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: stage-dccs-obesrabuo
+spec:
+  hard:
+    requests.cpu: 1545m
+    requests.memory: 5744Mi
+    limits.cpu: 5770m
+    limits.memory: 5744Mi

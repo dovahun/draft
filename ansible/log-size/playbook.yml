@@ -1,0 +1,28 @@
+- name: Add limit size
+  hosts: playground
+  become_user: root
+  user: root
+  become: True
+  vars_files:
+    - vars/main.yml
+    - host_vars/main.yml
+  tasks:
+    - name: copy daemon.json
+      template:
+        src: templates/daemon.json.j2
+        dest: /etc/docker/daemon.json
+
+    - name: service_facts
+      service_facts:
+
+    - debug:
+        var: ansible_facts.services['docker.service']['state']
+
+    - name: restart docker
+      service:
+        name: docker
+        state: restarted
+      failed_when: ansible_facts.services['docker.service']['state']=="stopped"
+
+
+

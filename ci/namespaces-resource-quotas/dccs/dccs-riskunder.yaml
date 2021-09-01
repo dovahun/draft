@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-dccs-riskunder
+spec:
+  hard:
+    requests.cpu: 4215m
+    requests.memory: 45697Mi
+    limits.cpu: 18720m
+    limits.memory: 47632Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-dccs-riskunder
+spec:
+  hard:
+    requests.cpu: 4215m
+    requests.memory: 45697Mi
+    limits.cpu: 18720m
+    limits.memory: 47632Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: stage-dccs-riskunder
+spec:
+  hard:
+    requests.cpu: 6545m
+    requests.memory: 75585Mi
+    limits.cpu: 30520m
+    limits.memory: 77520Mi

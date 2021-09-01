@@ -1,0 +1,231 @@
+---
+resource_types:
+
+- name: git-multibranch
+  type: docker-image
+  source:
+    username: ((registry_user))
+    password: ((registry_password))
+    repository: docker.fabric8.ru/devops/git-multibranch-resource
+
+- name: bitbucket-build-status
+  type: docker-image
+  source:
+    repository: ((docker_proxy))/shyxormz/bitbucket-build-status-resource
+
+- name: concourse-bitbucket-pullrequest
+  type: docker-image
+  source:
+    repository: ((docker_proxy))/mm62/concourse-bitbucket-pullrequest-resource
+
+- name: ansible
+  type: docker-image
+  source:
+    username: ((registry_user))
+    password: ((registry_password))
+    repository: docker.fabric8.ru/devops/concourse-ansible-playbook-resource
+    tag: latest
+
+
+resources:
+
+  - name: git-resource-image
+    type: docker-image
+    source:
+      repository: ((docker_repo))/((docker_prefix))/user-management
+      username: ((docker_user))
+      password: ((docker_password))
+
+  - name: source-code-master
+    type: git-multibranch
+    check_every: 1m
+    source:
+      uri: ssh://git@((bitbucket_host)):7999/((project_prefix))/((project_name)).git
+      private_key: ((git_key))
+      branches: 'master'
+      paths:
+        - utilities/
+
+  - name: ansible_playbook
+    type: git-multibranch
+    source:
+      uri: ((git_ansible_url))
+      ignore_paths:
+        - .ci/
+        - utilities/
+      branches: 'master'
+      private_key: ((git_key))
+
+  - name: source-code-ci
+    type: git
+    source:
+      branches: 'master'
+      private_key: ((git_key))
+      paths:
+        - .ci/
+      uri: ((git_ansible_url))
+
+  - name: user_management
+    type: git
+    source:
+      uri: ((git_users_url))
+      branches: 'master'
+      private_key: ((git_key))
+
+  - name: ansible_executor
+    type: ansible
+    source:
+      debug: false
+      verbose: v
+      ssh_private_key: ((ansible_key))
+      user: ansible
+
+  - name: build_status
+    type: bitbucket-build-status
+    source:
+      username: ((bitbucket_user))
+      password: ((bitbucket_password))
+      endpoint: ((bitbucket_url))
+      verify_ssl: true
+
+  - name: pullrequest
+    type: concourse-bitbucket-pullrequest
+    source:
+      password: ((bitbucket_password))
+      uri: ((git_users_http_url))
+      username: ((bitbucket_user))
+
+
+jobs:
+  - name: run playbook
+    on_success:
+      put: build_status
+      params:
+        build_status: SUCCESSFUL
+        repository: user_management
+
+    on_failure:
+      put: build_status
+      params:
+        build_status: FAILED
+        repository: user_management
+
+    plan:
+      - get: ansible_playbook
+        trigger: true
+
+      - get: user_management
+        trigger: true
+
+      - put: build_status
+        params:
+          build_status: INPROGRESS
+          repository: user_management
+
+      - task: combine_yml
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/user-management
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              python /app/yml_combine.py -d user_management/configs/ -o combined/
+          inputs:
+          - name: user_management
+          outputs:
+          - name: combined
+
+      - task: user_management
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/user-management
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              echo ((ldap_ip)) ((ipa_host)) >> /etc/hosts &&
+              python /app/ldap.py --domain ((ipa_host)) -u ((ipa_user)) -p ((ipa_password)) -i combined/users_list.yml
+          inputs:
+          - name: combined
+
+      - put: ansible_executor
+        params:
+          path: ansible_playbook
+          playbook: provisioning/playbook.yml
+          inventory: provisioning/inventory
+
+  - name: check pullrequest
+    plan:
+      - get: pullrequest
+        trigger: true
+        version: every
+
+      - put: pullrequest
+        params:
+          path: pullrequest
+          status: pending
+
+      - task: check pullrequest
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/user-management
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              echo ((ldap_ip)) ((ipa_host)) >> /etc/hosts &&
+              python /app/check.py -d pullrequest/configs/  --domain ((ipa_host)) -u ((ipa_user)) -p ((ipa_password))
+          inputs:
+          - name: pullrequest
+        on_failure:
+          put: pullrequest
+          params:
+            path: pullrequest
+            status: failure
+        on_success:
+          put: pullrequest
+          params:
+            path: pullrequest
+            status: success
+
+  - name: Apply new pipeline
+    plan:
+      - get: source-code-ci
+        trigger: true
+        
+      - set_pipeline: self
+        file: source-code-ci/.ci/pipeline.yaml
+
+  - name: "Build Dockerfile"
+    plan:
+      - get: source-code-master
+        trigger: true
+
+      - put: git-resource-image
+        params:
+          build: source-code-master/utilities/
+          tag_file: source-code-master/tag
+          tag_as_latest: true
+

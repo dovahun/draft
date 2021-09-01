@@ -1,0 +1,10 @@
+server {
+listen {{ansible_default_ipv4.address}}:80 ;
+server_name {{ansible_default_ipv4.address}};
+root /usr/share/nginx/html;
+index index.html index.html;
+server_name localhost;
+location / {
+	try_files $uri $uri/ =404;
+	}
+}

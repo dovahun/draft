@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-conprec
+spec:
+  hard:
+    limits.cpu: 5300m
+    limits.memory: 5216Mi
+    requests.cpu: 1180m
+    requests.memory: 5216Mi
+
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-conprec
+spec:
+  hard:
+    limits.cpu: 5300m
+    limits.memory: 5216Mi
+    requests.cpu: 1180m
+    requests.memory: 5216Mi
+
+
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-conprec
+spec:
+  hard:
+    limits.cpu: 5300m
+    limits.memory: 5216Mi
+    requests.cpu: 1180m
+    requests.memory: 5216Mi
+
+

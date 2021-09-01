@@ -1,0 +1,14 @@
+#!/bin/expect -f
+
+set timeout -1
+set username [lindex $argv 0]
+spawn docker run -v {{ openvpn_dir }}:/etc/openvpn --log-driver=none --rm -it docker.fabric8.ru/devops/openvpn-ldap:{{ docker_tag }} ovpn_revokeclient $username remove
+match_max 100000
+expect "*Type the word 'yes' to continue, or any other input to abort.\r
+  Continue with revocation: "
+send -- "yes\r"
+expect "*Enter pass phrase for /etc/openvpn/pki/private/ca.key:"
+send -- "{{ ca_password }}\r"
+expect "Enter pass phrase for /etc/openvpn/pki/private/ca.key:"
+send -- "{{ ca_password }}\r"
+expect eof

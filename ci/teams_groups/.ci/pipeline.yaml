@@ -1,0 +1,220 @@
+---
+resource_types:
+
+- name: concourse-bitbucket-pullrequest
+  type: docker-image
+  source:
+    repository: ((docker_proxy))/mm62/concourse-bitbucket-pullrequest-resource
+
+- name: bitbucket-build-status
+  type: docker-image
+  source:
+    repository: ((docker_proxy))/shyxormz/bitbucket-build-status-resource
+
+- name: git-multibranch
+  type: docker-image
+  source:
+    username: ((registry_user))
+    password: ((registry_password))
+    repository: docker.fabric8.ru/devops/git-multibranch-resource
+
+resources:
+
+  - name: git-resource-image-sh
+    type: docker-image
+    source:
+      repository: ((docker_repo))/((docker_prefix))/teams
+      username: ((docker_user))
+      password: ((docker_password))
+
+  - name: git-resource-image-py
+    type: docker-image
+    source:
+      repository: ((docker_repo))/((docker_prefix))/teams-py
+      username: ((docker_user))
+      password: ((docker_password))
+
+  - name: source-code-master
+    type: git-multibranch
+    check_every: 1m
+    source:
+      uri: ssh://git@((bitbucket_host)):7999/((project_prefix))/((project_name)).git
+      private_key: ((git_private_key))
+      branch: 'master'
+      paths:
+        - utilities/
+
+  - name: git_teams-groups
+    type: git
+    source:
+      uri: ((git_teams_rules))
+      branch: 'master'
+      username: ((bitbucket_username))
+      password: ((bitbucket_password))
+      ignore_paths:
+        - .ci/
+
+  - name: git_teams
+    type: git
+    source:
+      uri: ((git_teams))
+      branch: 'master'
+      username: ((bitbucket_username))
+      password: ((bitbucket_password))
+
+  - name: pullrequest
+    type: concourse-bitbucket-pullrequest
+    source:
+      password: ((bitbucket_password))
+      uri: ((git_teams))
+      username: ((bitbucket_username))
+
+  - name: ci
+    type: git
+    source:
+      uri: ((git_teams_rules))
+      branch: 'master'
+      username: ((bitbucket_username))
+      password: ((bitbucket_password))
+      paths:
+        - .ci/
+
+  - name: build_status
+    type: bitbucket-build-status
+    source:
+      username: ((bitbucket_username))
+      password: ((bitbucket_password))
+      endpoint: ((bitbucket_url))
+
+jobs:
+
+  - name: check pullrequest
+    plan:
+      - get: pullrequest
+        trigger: true
+
+      - put: pullrequest
+        params:
+          path: pullrequest
+          status: pending
+
+      - task: check pullrequest
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/teams-py
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              python3 /app/check.py -d pullrequest/configs/
+          inputs:
+          - name: pullrequest
+
+        on_failure:
+          put: pullrequest
+          params:
+            path: pullrequest
+            status: failure
+
+        on_success:
+          put: pullrequest
+          params:
+            path: pullrequest
+            status: success
+
+  - name: Managing CI teams and ldap groups
+    on_success:
+      put: build_status
+      params:
+        build_status: SUCCESSFUL
+        repository: git_teams
+
+    on_failure:
+      put: build_status
+      params:
+        build_status: FAILED
+        repository: git_teams
+    plan:
+      - get: git_teams-groups
+
+      - get: git_teams
+        trigger: true
+
+      - task: "Managing: LDAP groups"
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/teams-py
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              echo ((ldap_ip)) ((ipa_host)) >> /etc/hosts &&
+              python3 /app/CreateGroupConfigs.py -i git_teams/configs/ --domain ((ipa_host)) -u ((ipa_user)) -p ((ipa_password)) -of configs/
+          inputs:
+          - name: git_teams
+          outputs:
+          - name: configs
+
+      - task: "Managing: CI teams"
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              username: ((registry_user))
+              password: ((registry_password))
+              repository: docker.fabric8.ru/devops/teams
+              tag: 'latest'
+          run:
+            path: sh
+            args:
+            - -ec
+            - |
+              fly -t ((target)) login --concourse-url=((concourse_url)) --username=((concourse_user)) --password=((concourse_password)) && fly -t ((target)) sync
+              /app/ManageTeam.sh configs/
+          inputs:
+          - name: configs
+
+  - name: "Build Dockerfile teams"
+    plan:
+      - get: source-code-master
+        trigger: true
+
+      - put: git-resource-image-sh
+        params:
+          build: source-code-master/utilities/ManageTeams/
+          tag_file: source-code-master/tag
+          tag_as_latest: true
+
+  - name: "Build Dockerfile teams-py"
+    plan:
+      - get: source-code-master
+        trigger: true
+
+      - put: git-resource-image-py
+        params:
+          build: source-code-master/utilities/CreateGroupAndConfigs/
+          tag_file: source-code-master/tag
+          tag_as_latest: true
+
+  - name: Apply new pipeline
+    plan:
+      - get: ci
+        trigger: true
+
+      - set_pipeline: self
+        file: ci/.ci/pipeline.yaml

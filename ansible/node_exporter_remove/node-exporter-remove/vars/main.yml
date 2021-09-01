@@ -1,0 +1,2 @@
+_node_exporter_system_group: "node-exp"
+_node_exporter_system_user: "{{ _node_exporter_system_group }}"

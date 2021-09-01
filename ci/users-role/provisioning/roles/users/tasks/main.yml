@@ -1,0 +1,108 @@
+---
+- name: install required packages
+  apt:
+    name: "{{ packages }}"
+    force_apt_get: yes
+    state: present
+
+- name: docker registry login
+  docker_login:
+    registry: "{{ registry }}"
+    username: "{{ registry_user }}"
+    password: "{{ registry_password }}"
+
+- name: pull image
+  docker_image:
+    name: docker.fabric8.ru/devops/openvpn-ldap:{{ docker_tag }}
+    source: pull
+
+- name: create wrapper dir
+  file:
+    path: /opt/vpn_scripts
+    owner: root
+    group: root
+    state: directory
+    mode: '0775'
+
+- name: copy wrapper scripts
+  template:
+    src: "{{ item }}"
+    dest: /opt/vpn_scripts/{{ item }}
+    owner: root
+    group: root
+    mode: 0744
+  with_items:
+    - "{{ vpn_scripts }}"
+
+- name: create symlink to expect binary
+  file:
+    src: /usr/bin/expect
+    dest: /bin/expect
+    state: link
+  when:  ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: load users
+  include_vars:
+    #dir: /tmp/build/put/user_management/
+    file: /tmp/build/put/combined/users_list.yml
+    name: users
+
+- name: debug item
+  debug:
+    var: "{{ item }}"
+  loop: "{{ users.user }}"
+
+- name: searching_existing_active_vpn_users
+  shell: "find {{ openvpn_dir }}/client_configs/ -maxdepth 1 -type f -name '{{ item.login }}.ovpn' | awk -F '/' '{ print $NF}'"
+  loop: "{{ users.user }}"
+  register: existing
+
+- name: define exists_users
+  set_fact:
+    exists_users: []
+
+- name: set exist flag to found
+  set_fact:
+    exists_users: "{{ exists_users | combine(existing_users) }}"
+  vars:
+    existing_users: "{ '{{ item.item.login }}': {'state': '{{ item.item.params.state }}', 'discord_id': '{{ item.item.params.discord_id }}', 'exist': true } }"
+  when: item.stdout != ''
+  with_items: "{{ existing.results }}"
+
+- name: set exist flag to not found
+  set_fact:
+      exists_users: "{{ exists_users | combine(existing_users) }}"
+  vars:
+    existing_users: "{ '{{ item.item.login }}': {'state': '{{ item.item.params.state }}', 'discord_id': '{{ item.item.params.discord_id }}', 'exist': false } }"
+  when: item.stdout == ''
+  with_items: "{{ existing.results }}"
+
+
+- name: create active users certs
+  shell: /opt/vpn_scripts/create_user {{ item.key }}
+  when: item.value.state == 'present' and not item.value.exist
+  with_dict:
+    - "{{ exists_users }}"
+
+- name: revoke inactive users certs
+  shell: /opt/vpn_scripts/revoke_user {{ item.key }}
+  when: item.value.state == 'absent' and item.value.exist
+  with_dict:
+    - "{{ exists_users }}"
+
+- name: remove inactive users configs
+  shell: /opt/vpn_scripts/remove_user_config {{ item.key }}
+  when: item.value.state == 'absent' and item.value.exist
+  with_dict:
+    - "{{ exists_users }}"
+
+- name: generate active users configs
+  shell: /opt/vpn_scripts/get_user_config {{ item.key }}
+  when: item.value.state == 'present' and not item.value.exist
+  with_dict:
+    - "{{ exists_users }}"
+
+- name: cleanup
+  file:
+    state: absent
+    path: /opt/vpn_scripts/

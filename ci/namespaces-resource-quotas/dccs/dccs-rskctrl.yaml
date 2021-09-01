@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-dccs-rskctrl
+spec:
+  hard:
+    requests.cpu: 2070m
+    requests.memory: 8545Mi
+    limits.cpu: 7770m
+    limits.memory: 10480Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-dccs-rskctrl
+spec:
+  hard:
+    requests.cpu: 2070m
+    requests.memory: 8545Mi
+    limits.cpu: 7770m
+    limits.memory: 10480Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: stage-dccs-rskctrl
+spec:
+  hard:
+    requests.cpu: 2970m
+    requests.memory: 13665Mi
+    limits.cpu: 12270m
+    limits.memory: 15600Mi

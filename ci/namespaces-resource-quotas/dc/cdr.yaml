@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-cdr
+spec:
+  hard:
+    limits.cpu: 12550m
+    limits.memory: 12896Mi
+    requests.cpu: 2700m
+    requests.memory: 12896Mi
+
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-cdr
+spec:
+  hard:
+    limits.cpu: 12550m
+    limits.memory: 12896Mi
+    requests.cpu: 2700m
+    requests.memory: 12896Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-cdr
+spec:
+  hard:
+    limits.cpu: 12550m
+    limits.memory: 12896Mi
+    requests.cpu: 2700m
+    requests.memory: 12896Mi
+

@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  repository: docker-v2.dcarttst201lv.region.vtb.ru/devops/helm_loader
+  tag: latest
+  pullPolicy: Always
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podSecurityContext: {}
+
+securityContext:
+  enable: true
+  fsGroup: 1000130000
+  runAsNonRoot: true
+  runAsUser: 1000130000
+backoffLimit: 2
+activeDeadlineSeconds: 12000
+environments:
+  USER: user
+  PASSWORD: user
+  PULL_URL: https://dcarttst201lv.region.vtb.ru/api/storage/helm-local
+  PUSH_URL: http://dcart201lv.region.vtb.ru:8081/artifactory/helm
+service: {}
+ingress: {}
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,7 @@
+---
+- name: Configure webserver with Nginx
+  hosts: webservers
+  become_user: root
+  become: True
+  roles:
+    - nginx_deploy

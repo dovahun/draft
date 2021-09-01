@@ -1,0 +1,2 @@
+#!/bin/bash
+docker run -v {{ openvpn_dir }}:/etc/openvpn --log-driver=none --rm docker.fabric8.ru/devops/openvpn-ldap:{{ docker_tag }} ovpn_getclient $1

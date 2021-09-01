@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-deal
+spec:
+  hard:
+    limits.cpu: 8000m
+    limits.memory: 5216Mi
+    requests.cpu: 1000m
+    requests.memory: 5216Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-deal
+spec:
+  hard:
+    limits.cpu: 8000m
+    limits.memory: 6000Mi
+    requests.cpu: 1500m
+    requests.memory: 6000Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-deal
+spec:
+  hard:
+    limits.cpu: 8000m
+    limits.memory: 5216Mi
+    requests.cpu: 1000m
+    requests.memory: 5216Mi
+
+
+

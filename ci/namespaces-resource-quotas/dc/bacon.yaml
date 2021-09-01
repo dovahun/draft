@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-bacon
+spec:
+  hard:
+    limits.cpu: 2300m
+    limits.memory: 2144Mi
+    requests.cpu: 1180m
+    requests.memory: 2144Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-bacon
+spec:
+  hard:
+    limits.cpu: 2300m
+    limits.memory: 2144Mi
+    requests.cpu: 1080m
+    requests.memory: 1888Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-bacon
+spec:
+  hard:
+    limits.cpu: 2300m
+    limits.memory: 2144Mi
+    requests.cpu: 1180m
+    requests.memory: 2144Mi

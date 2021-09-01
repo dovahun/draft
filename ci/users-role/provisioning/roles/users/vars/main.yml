@@ -1,0 +1,17 @@
+---
+registry: docker.fabric8.ru
+registry_user: dc-dockeruser-01
+registry_password: fYQX5yEWDFtS61HrAbjtPj9f
+ca_password: e5501c6af2
+docker_tag: master-192d802839
+openvpn_dir: /opt/openvpn_ldap
+ipa_host: dc-ldap-master.dclab.local
+ipa_user: tech
+ipa_password: 1a15ceb5c6
+packages:
+  - expect
+vpn_scripts:
+  - create_user
+  - revoke_user
+  - get_user_config
+  - remove_user_config

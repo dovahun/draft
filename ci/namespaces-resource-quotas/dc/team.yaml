@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-team
+spec:
+  hard:
+    limits.cpu: "9"
+    limits.memory: 9800Mi
+    requests.cpu: 1650m
+    requests.memory: 9800Mi
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-team
+spec:
+  hard:
+    limits.cpu: "9"
+    limits.memory: 9800Mi
+    requests.cpu: 1650m
+    requests.memory: 9800Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-team
+spec:
+  hard:
+    limits.cpu: "5"
+    limits.memory: 5Gi
+    requests.cpu: 1150m
+    requests.memory: 5Gi
+

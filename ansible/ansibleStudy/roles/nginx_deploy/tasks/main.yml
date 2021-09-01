@@ -1,0 +1,47 @@
+---
+- name: print OS
+  debug:
+    msg:
+      - "{{ansible_distribution}}"
+      - "{{ansible_os_family}}"
+      - "{{ansible_distribution_file_path}}"
+
+
+
+- name: create sites-available dir
+  file:
+    state: directory
+    path: /etc/nginx/default.d/sites-available
+    owner: nginx
+    group: nginx
+    mode: 754
+
+- name: copy nginx config file
+  template:
+    src:  localhost.j2
+    dest: /etc/nginx/default.d/sites-available/localhost.conf
+  notify: nginx restart
+
+- name: copy index.html
+  template:
+    src:  ./templates/index.html.j2
+    dest: /usr/share/nginx/html/index.html
+    mode: 0644
+
+- name: Get request
+  uri:
+    url: "http://{{ansible_default_ipv4.address}}"
+    method: GET
+    return_content: yes
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 5
+
+- name: print status
+  debug:
+    var: result.status
+
+
+
+# tasks file for nginx_roles

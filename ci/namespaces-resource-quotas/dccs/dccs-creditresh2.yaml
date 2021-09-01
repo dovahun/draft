@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-dccs-creditresh2
+spec:
+  hard:
+    requests.cpu: 1870m
+    requests.memory: 12832Mi
+    limits.cpu: 5020m
+    limits.memory: 12832Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-dccs-creditresh2
+spec:
+  hard:
+    requests.cpu: 1870m
+    requests.memory: 12832Mi
+    limits.cpu: 5020m
+    limits.memory: 12832Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: stage-dccs-creditresh2
+spec:
+  hard:
+    requests.cpu: 2770m
+    requests.memory: 21024Mi
+    limits.cpu: 8020m
+    limits.memory: 21024Mi

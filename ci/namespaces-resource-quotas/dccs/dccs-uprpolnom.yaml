@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-dccs-uprpolnom
+spec:
+  hard:
+    requests.cpu: 985m
+    requests.memory: 2896Mi
+    limits.cpu: 2920m
+    limits.memory: 2896Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-dccs-uprpolnom
+spec:
+  hard:
+    requests.cpu: 985m
+    requests.memory: 2896Mi
+    limits.cpu: 2920m
+    limits.memory: 2896Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: stage-dccs-uprpolnom
+spec:
+  hard:
+    requests.cpu: 1295m
+    requests.memory: 4464Mi
+    limits.cpu: 4520m
+    limits.memory: 4464Mi

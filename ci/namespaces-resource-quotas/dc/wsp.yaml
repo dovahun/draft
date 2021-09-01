@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-wsp
+spec:
+  hard:
+    limits.cpu: 17200m
+    limits.memory: 19488Mi
+    requests.cpu: 4040m
+    requests.memory: 19488Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-wsp
+spec:
+  hard:
+    limits.cpu: 17200m
+    limits.memory: 19488Mi
+    requests.cpu: 4040m
+    requests.memory: 19488Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-wsp
+spec:
+  hard:
+    limits.cpu: 17200m
+    limits.memory: 19488Mi
+    requests.cpu: 4040m
+    requests.memory: 19488Mi
+

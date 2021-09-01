@@ -1,0 +1,10 @@
+{}
+{
+  "log-driver": 'json-file',
+  "log-opts": {
+    "max-size": '{{ size.mb }}',
+    "max-file": '{{ sum_files }}'
+  }
+  "hosts": [ "unix:///var/run/docker.sock","tcp://0.0.0.0:2375"]
+  "dns": ["8.8.8.8", "8.8.4.4"]
+}

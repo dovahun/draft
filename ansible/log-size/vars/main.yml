@@ -1,0 +1,8 @@
+#Размер логов
+size:
+  mb: 50m
+  gb: 5
+#Лог драйвера для Docker Community Engine
+log_driver_com: journald
+#Количество лог-файлов
+sum_files: 3

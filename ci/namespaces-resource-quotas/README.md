@@ -1,0 +1,1 @@
+[![CI](https://img.shields.io/endpoint?logo=concourse&style=for-the-badge&url=https%3A%2F%2Fshieds.dc.vtb.cloud%2Fconcourse.html)](https://ci.fabric8.ru/teams/devops/pipelines/namespaces-resource-quotas)

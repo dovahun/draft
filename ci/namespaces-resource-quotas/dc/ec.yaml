@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-ec
+spec:
+  hard:
+    limits.cpu: 8300m
+    limits.memory: 8512Mi
+    requests.cpu: 2780m
+    requests.memory: 8512Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-ec
+spec:
+  hard:
+    limits.cpu: 8300m
+    limits.memory: 8512Mi
+    requests.cpu: 2800m
+    requests.memory: 8512Mi
+
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-ec
+spec:
+  hard:
+    limits.cpu: 9300m
+    limits.memory: 9536Mi
+    requests.cpu: 3780m
+    requests.memory: 9536Mi
+

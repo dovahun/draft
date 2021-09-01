@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: dev-stopfactor
+spec:
+  hard:
+    limits.cpu: "5"
+    limits.memory: 7000Mi
+    requests.cpu: 1200m
+    requests.memory: 7000Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: qa-stopfactor
+spec:
+  hard:
+    limits.cpu: "5"
+    limits.memory: 6500Mi
+    requests.cpu: 1200m
+    requests.memory: 6500Mi
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: default
+  namespace: sandbox-stopfactor
+spec:
+  hard:
+    limits.cpu: 3800m
+    limits.memory: 5216Mi
+    requests.cpu: 1500m
+    requests.memory: 5216Mi
+
