@@ -1,5 +1,0 @@
-users/*
-.vagrant
-.idea
-test
-.ci/vars.yaml

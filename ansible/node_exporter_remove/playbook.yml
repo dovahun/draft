@@ -1,7 +1,0 @@
-- name: Remove node exporter
-  hosts: meta-OS_Linux,!meta-ROLE_node,!meta-ROLE_master
-  user: pkopylov
-  become: yes
-  gather_facts: yes
-  roles:
-    - node-exporter-remove

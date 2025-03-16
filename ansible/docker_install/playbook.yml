@@ -1,7 +1,0 @@
-- name: install docker
-  hosts: playground
-  become_user: root
-  user: root
-  become: True
-  roles:
-    - docker-install
